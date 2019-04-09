@@ -31,6 +31,9 @@ allUploaded | 文件上传成功后的回调(多文件为所有文件上传完�
 allUploaded-res | allUploaded回调参数中的res结构为:{name:文件名称,type:文件类型,ossUrl:上传成功后的文件请求url(形状与上面的httpStr参数一致)} | 是 | 
 policyFailed | 请求policy失败后的回调 | 是 | 
 uploadRenderData | 支持部分layui的upload的参数配置 | 否 | {}
+  
+    
+    
 uploadRenderData的参数配置功能大致如下(并未测试,目前只是肓敲代码...)  
 ![image](https://raw.githubusercontent.com/xieyushi/blog/master/blogimg/blogimg44.png)  
 参数解读就这么多了.不过插件也并完全完善,中间也有一些不足:  
