@@ -7,7 +7,6 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 		uploadData = [],
 		prefixPath,
 		layerTitle,
-		layerArea = ['850px', '500px'],
 		filesss = {},
 		successCount = 0,
 		filesListView = null,
@@ -88,6 +87,11 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 		} else {
 			policyHeader = {};
 		}
+		if (typeof that.options.uploadRenderData != 'undefined') {
+			uploadRenderData = that.options.uploadRenderData;
+		} else {
+			uploadRenderData = {};
+		}
 		if (!that.strIsNull(that.options.policyMethod)) {
 			policyMethod = that.options.policyMethod;
 		} else {
@@ -139,7 +143,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 								//先获取police信息
 								$.ajax({
 									url: policyUrl,
-									type: "GET",
+									type: policyMethod,
 									data: policyData,
 									headers: policyHeader,
 									success: function(res) {
@@ -184,7 +188,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 
 							})
 							filesListView = $('#test-upload-filesList'),
-								uploadListIns = upload.render({
+								uploadListIns = upload.render($.extend({
 									elem: '#test-upload-files',
 									url: httpStr+'://'+bucket + '.' + region + '.aliyuncs.com',
 									accept: fileType,
@@ -212,7 +216,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 											filesListView.append(tr);
 										});
 									}
-								});
+								},uploadRenderData));
 						} //可以自行添加按钮关闭,关闭请清空rowData
 						,
 					end: function() {
@@ -225,7 +229,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 				});
 			})
 		} else {
-			upload.render({
+			upload.render($.extend({
 				elem: that.options.elm,
 				url: httpStr+'://'+bucket + '.' + region + '.aliyuncs.com',
 				accept: fileType,
@@ -250,7 +254,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 					//先获取police信息
 					$.ajax({
 						url: policyUrl,
-						type: "GET",
+						type: policyMethod,
 						data: policyData,
 						headers: policyHeader,
 						success: function(res) {
@@ -281,7 +285,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 					});
 
 				}
-			});
+			},uploadRenderData));
 		}
 	};
 
