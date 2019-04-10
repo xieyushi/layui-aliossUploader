@@ -2,15 +2,18 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 	var $ = layui.$,
 		layer = layui.layer,
 		upload = layui.upload,
-		allUploaded = null,
+		allUploaded = {},
 		policyFailed = null,
 		uploadData = [],
 		prefixPath,
 		layerTitle,
 		filesss = {},
 		successCount = 0,
+		uploadCount = 0,
 		filesListView = null,
 		multiple = false,
+		multipleFileArray = [],
+		multipleFileKeyArray = [],
 		uplaod = layui.upload;
 	//加载样式
 
@@ -100,7 +103,7 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 		if (!that.strIsNull(that.options.bucket)) {
 			bucket = that.options.bucket;
 		}
-		allUploaded = that.options.allUploaded;
+		allUploaded[that.options.elm] = that.options.allUploaded;
 		policyFailed = that.options.policyFailed;
 		if (!that.strIsNull(that.options.layerTitle)) {
 			layerTitle = that.options.layerTitle;
@@ -173,7 +176,12 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 												if (tds.eq(2).text() == '等待上传') {
 													that.uploadFile(files, filekey, fileCount, res.data);
 												} else {
-													successCount++;
+													// successCount++;
+													fileCount--;
+													if(fileCount == 0){
+														layer.closeAll('loading');
+														layer.msg('没有文件需要上传');
+													}
 												}
 											}
 										} else {
@@ -304,19 +312,20 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 
 
 	Class.prototype.uploadFile = function(filess, filekey, fileCount, data) {
-		var filekey = filekey;
 		var multipleState = this.options.multiple;
+		multipleFileArray.push(filess[filekey]);
 		data.file = filess[filekey];
 		var filedata = new FormData();
-		var key = this.options.prefixPath + new Date().getTime() + '-' + (Math.random() + "").substring(2, 7) + '-' + data
-			.file.name;
-		filedata.append('key', key);
+		multipleFileKeyArray.push(this.options.prefixPath + new Date().getTime() + '-' + (Math.random() + "").substring(2, 7) + '-' + data.file.name);
+		filedata.append('key', multipleFileKeyArray[uploadCount]);
 		filedata.append('policy', data.policy);
 		filedata.append('OSSAccessKeyId', data.accessid);
 		filedata.append('signature', data.signature);
 		filedata.append('success_action_status', 200);
-		filedata.append('file', filess[filekey]);
+		filedata.append('file', multipleFileArray[uploadCount]);
+		uploadCount++;
 		var upfiles = filesss;
+		var that = this;
 		$.ajax({
 			url: httpStr+'://'+ bucket + '.' + region + '.aliyuncs.com',
 			processData: false,
@@ -326,9 +335,9 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 			data: filedata,
 			success: function() {
 				var result = {
-					name: data.file.name,
-					type: data.file.type,
-					ossUrl: httpStr+'://'+bucket + '.' + region + '.aliyuncs.com' + '/' + key
+					name: multipleFileArray[successCount].name,
+					type: multipleFileArray[successCount].type,
+					ossUrl: httpStr+'://'+bucket + '.' + region + '.aliyuncs.com' + '/' + multipleFileKeyArray[successCount]
 				};
 				//成功无返回
 				if (multipleState) {
@@ -345,8 +354,11 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 				if (successCount == fileCount) {
 					successCount = 0;
 					fileCount = 0;
+					uploadCount = 0;
+					multipleFileArray = [];
+					multipleFileKeyArray = [];
 					layer.closeAll('loading')
-					allUploaded(uploadData);
+					allUploaded[that.options.elm](uploadData);
 				}
 			},
 			error: function(i) {
