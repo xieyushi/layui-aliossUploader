@@ -142,6 +142,10 @@ layui.extend({}).define(['layer', 'upload'], function(exports) {
 						'</div>',
 					success: function(layero, index) {
 							$('#test-upload-filesAction').on('click', function() {
+								if(typeof uploadListIns.config.files == 'undefined'){
+									layer.msg('请先选择要上传的文件!',{shade:'rgba(0,0,0,0)'});
+									return;
+								}
 								layer.open({type: 3, icon: 1});
 								//先获取police信息
 								$.ajax({
